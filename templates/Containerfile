@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.9
 # langdev Containerfile template — OCI, builds with Docker AND Podman.
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: Apache-2.0 OR MIT
 #
 # Multi-stage, hardened, ultra-small base for <language>dev images.
 # A language repo fills in the `toolchain` stage, provides
