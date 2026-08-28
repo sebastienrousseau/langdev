@@ -39,29 +39,47 @@ Everything language-agnostic lives here and is **vendored** into each
 clone one repo, `make up`, done. No registry or base-image pull needed.
 
 ```
-langdev/                     # this repo — single source of truth
+langdev/                       # this repo — single source of truth
 ├── common/
-│   ├── dotfiles/            # portable bash rc/profile/aliases
-│   ├── nvim/                # Neovim + LazyVim core (language-agnostic)
-│   └── entrypoint.sh        # tini-friendly, strict-mode, signal-safe
-├── templates/               # per-repo scaffolding
-│   ├── Containerfile        # multi-stage, hardened, parameterised
-│   ├── compose.yaml         # fully hardened service definition
-│   ├── Makefile             # docker|podman autodetect lifecycle
-│   ├── env.example          # placeholders only — never real secrets
+│   ├── bootstrap-dotfiles.sh  # build-time: clone + chezmoi-apply the
+│   │                          #   user's dotfiles (latest by default)
+│   └── entrypoint.sh          # strict-mode, tmux-loading, signal-safe
+├── templates/                 # per-repo scaffolding
+│   ├── Containerfile          # multi-stage, hardened, parameterised
+│   ├── compose.yaml           # fully hardened service definition
+│   ├── Makefile               # docker|podman autodetect lifecycle
+│   ├── env.example            # placeholders only — never real secrets
 │   ├── dockerignore / gitignore
 │   └── github-workflows/ci.yml
-└── bin/langdev-sync         # copies common/ into a target repo
+└── bin/langdev-sync           # copies common/ into a target repo
 ```
 
-Each `<language>dev` repo adds only:
+### The developer environment IS the user's own dotfiles
+
+langdev does **not** ship a synthetic shell/editor config. At build time
+each image clones the user's chezmoi-managed **dotfiles repo** and runs
+`chezmoi apply`, so the container has the *real* bashrc, aliases, tmux
+config, and Neovim setup — **always the latest** by default (pin a
+tag/commit with the `DOTFILES_REF` build arg for reproducible builds).
+
+- **tmux** is installed and **loaded by default**: the entrypoint
+  attaches to (or creates) a persistent `langdev` tmux session for
+  interactive shells. Opt out with `LANGDEV_NO_TMUX=1`.
+- The dotfiles' Neovim config is authoritative. Each `<language>dev`
+  image drops **one** `nvim/plugins.local/lang.lua` spec into the
+  dotfiles' nvim (auto-imported via its `plugins.local` convention) to
+  wire that language's LSP. Plugins are baked headless at build time, so
+  the container needs **no network on first launch**.
+
+Each `<language>dev` repo therefore adds only:
 
 - a thin **toolchain stage** in its `Containerfile` (the language
-  compiler/interpreter + its LSP/formatter/test tools),
-- **one** `nvim/plugins/lang.lua` wiring that language's LSP
-  (LSP servers are installed at **build time** by the toolchain stage;
-  Mason is intentionally disabled so the container needs **no network
-  on first run** and stays reproducible),
+  compiler/interpreter + its LSP/formatter/test tools, installed at
+  build time into a relocatable `/opt/langdev/toolchain`),
+- **one** `nvim/plugins.local/lang.lua` (its LSP spec),
+- **one** `dotfiles.d/<lang>.sh` installed to `/etc/profile.d/<lang>.sh`
+  (language `PATH`/env for login shells — kept OUT of the user's
+  dotfiles so those stay pristine and langdev-agnostic),
 - language-specific `env.example` / README entries.
 
 ## Security model (applies to every image)
