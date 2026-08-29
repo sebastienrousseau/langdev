@@ -1,0 +1,72 @@
+# langdev (core repo) CI — dogfoods the templates/ workflow.
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# This is the SOURCE repo of the suite: it ships templates/ and the shared
+# common/ core, but has no image to build at its root (the Containerfile is a
+# template with language-specific stages the <language>dev repos complete).
+# So this file runs the applicable subset — shellcheck, hadolint on the
+# template Containerfile, and the bats+kcov coverage gate. The full
+# build/trivy/sbom pipeline lives in templates/github-workflows/ci.yml, which
+# each <language>dev repo copies to its own .github/workflows/.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: shellcheck (all shell sources)
+        run: |
+          set -euo pipefail
+          files=$(git ls-files '*.sh' 'bin/langdev-sync' 'test/helpers/bin/*' 'test/helpers/common.bash')
+          echo "$files"
+          shellcheck -x $files
+
+  hadolint:
+    name: hadolint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
+        with:
+          dockerfile: templates/Containerfile
+
+  coverage:
+    name: bats + kcov (>=95%)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Install bats + kcov
+        run: sudo apt-get update && sudo apt-get install -y bats kcov
+      - name: Run tests under kcov and enforce the coverage floor
+        run: ./test/run.sh
+        env:
+          COVERAGE_THRESHOLD: "95"
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 7
