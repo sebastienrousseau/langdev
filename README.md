@@ -260,6 +260,8 @@ make up          # build + interactive dev shell (alias: make shell)
 make run CMD=… # one-shot command in a fresh container
 make build       # build the image for the host arch
 make buildx      # multi-arch build (linux/amd64, linux/arm64)
+make test        # bats unit tests under kcov, fail if coverage < 95%
+make coverage    # alias for test; HTML report in coverage/
 make lint        # hadolint the Containerfile + shellcheck the scripts
 make scan        # Trivy vulnerability scan (fail on HIGH/CRITICAL)
 make sbom        # CycloneDX SBOM via syft
@@ -267,9 +269,40 @@ make trash       # remove the image and dangling build cache
 make sync-common # refresh common/ from the langdev source
 ```
 
-CI (`.github/workflows/ci.yml`) runs the lint and build/scan jobs on
-every push and pull request. Contributions require signed commits and
-Conventional Commit messages — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
+### Tests and coverage
+
+The shared shell core (`common/bootstrap-dotfiles.sh`,
+`common/entrypoint.sh`, `bin/langdev-sync`) is unit-tested with
+[bats-core](https://github.com/bats-core/bats-core) and measured with
+[kcov](https://github.com/SimonKagstrom/kcov). `make test` runs the
+suite under kcov and **fails below 95 % line coverage**. The tests are
+hermetic — `git`, `chezmoi`, `nvim`, `tmux`, and `rsync` are test
+doubles on a closed `PATH`, so no network or container is needed. See
+[`test/README.md`](test/README.md) for the layout and the (production-inert)
+`LANGDEV_TEST` seam.
+
+### CI and security workflows
+
+Copied from [`templates/github-workflows/`](templates/github-workflows/)
+into each repo's `.github/workflows/`:
+
+| Workflow | What it gates |
+|---|---|
+| `ci.yml` | shellcheck, hadolint, **bats + kcov coverage (≥95 %)**, docker build, Trivy image scan (fail HIGH/CRITICAL), CycloneDX SBOM |
+| `scorecard.yml` | OpenSSF Scorecard, results published + SARIF to code-scanning |
+| `sast.yml` | ShellCheck + Trivy config + Checkov, SARIF → code-scanning |
+| `dependency-review.yml` | dependency + action changes reviewed on every PR |
+
+All actions are pinned to a full commit SHA, and every workflow runs
+least-privilege (`permissions: contents: read`, escalated per-job only
+where a SARIF upload needs `security-events: write`). The OpenSSF
+Best-Practices self-assessment lives in
+[`doc/CII-BEST-PRACTICES.md`](doc/CII-BEST-PRACTICES.md); a maintainer can
+apply the branch-protection ruleset with
+[`scripts/set-branch-protection.sh`](scripts/set-branch-protection.sh).
+
+Contributions require signed commits and Conventional Commit messages —
+see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ---
 
@@ -278,7 +311,9 @@ Conventional Commit messages — see [`CONTRIBUTING.md`](CONTRIBUTING.md).
 | Document | What it covers |
 |---|---|
 | [`STYLE.md`](STYLE.md) | The house style every suite README follows — skeleton, badges, tone, SPDX, licensing. |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/lint/scan/sbom, signed commits, Conventional Commits. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | The container workflow: build/lint/test/scan/sbom, signed commits, Conventional Commits. |
+| [`test/README.md`](test/README.md) | The bats + kcov unit-test suite, the hermetic test doubles, and the coverage gate. |
+| [`doc/CII-BEST-PRACTICES.md`](doc/CII-BEST-PRACTICES.md) | OpenSSF Best-Practices self-assessment: every criterion mapped to evidence, honest GAPs. |
 | [`SECURITY.md`](SECURITY.md) | The container threat model and the private disclosure process. |
 | [`GOVERNANCE.md`](GOVERNANCE.md) | Who decides what, and how the maintainer base is meant to grow. |
 | [`SUPPORT.md`](SUPPORT.md) | Where to go for questions, bugs, and feature requests. |

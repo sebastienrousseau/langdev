@@ -78,6 +78,14 @@ scan: build ## Vulnerability-scan the built image (needs trivy)
 sbom: build ## Generate a CycloneDX SBOM (needs syft)
 	@command -v syft >/dev/null && syft $(REF) -o cyclonedx-json > sbom.cdx.json && echo "wrote sbom.cdx.json" || echo "syft not installed — skipping"
 
+.PHONY: test
+test: ## Run the bats unit tests under kcov, fail if coverage < 95%
+	@./test/run.sh
+
+.PHONY: coverage
+coverage: test ## Alias for `test`; the HTML report lands in coverage/
+	@echo "coverage report: coverage/index.html"
+
 .PHONY: sync-common
 sync-common: ## Refresh common/ from the langdev source (LANGDEV=path-or-url)
 	@./bin/langdev-sync $(if $(LANGDEV),--source "$(LANGDEV)",)
