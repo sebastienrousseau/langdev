@@ -13,37 +13,99 @@
       <a class="btn btn-secondary btn-lg" href="https://github.com/sebastienrousseau/{{name}}" target="_blank" rel="noopener">Star on GitHub</a>
     </div>
 
-    <!-- Authentic Code & Terminal IDE Preview -->
-    <figure class="terminal-preview-card">
+    <!-- Authentic 4-Pane TMUX IDE Terminal Grid -->
+    <figure class="terminal-preview-card" aria-label="4-Pane TMUX IDE Grid Preview">
       <figcaption class="terminal-header">
         <div class="window-dots">
           <span class="dot dot-red" aria-hidden="true"></span>
           <span class="dot dot-yellow" aria-hidden="true"></span>
           <span class="dot dot-green" aria-hidden="true"></span>
         </div>
-        <div class="terminal-tab-bar">
-          <span class="tab-item active-tab font-mono">src/mcp-server.sh</span>
-          <span class="tab-item font-mono">terminal</span>
+        <div class="terminal-tab-bar font-mono">
+          <span class="tmux-win-badge">[langdev]</span>
+          <span class="tab-item active-tab">0:ide* (4 panes)</span>
+          <span class="tab-item">1:bash</span>
+          <span class="tab-item">2:mcp</span>
         </div>
         <div class="terminal-actions">
-          <span class="badge-status font-mono">● TMUX IDE + MCP Server</span>
+          <span class="badge-status font-mono">● Bash 5.2 · JSON-RPC MCP (Prefix + i)</span>
         </div>
       </figcaption>
-      <div class="terminal-editor-pane">
-        <pre class="editor-code font-mono"><code><span class="code-comment"># src/mcp-server.sh · JSON-RPC 2.0 Stdio Model Context Protocol Server</span>
+
+      <div class="tmux-grid">
+        <!-- Pane 1: Project Explorer (Left 20%) -->
+        <div class="tmux-pane pane-explorer font-mono">
+          <div class="pane-header">
+            <span class="pane-title">1: Explorer</span>
+            <span class="pane-badge">/work</span>
+          </div>
+          <div class="pane-content explorer-content">
+<div class="tree-node dir">▼ common/</div>
+<div class="tree-node file active">▶ mcp-server.sh</div>
+<div class="tree-node file">  muxtree.sh</div>
+<div class="tree-node file">  tmux-ide.sh</div>
+<div class="tree-node dir">▼ test/</div>
+<div class="tree-node file">  mcp.bats</div>
+<div class="tree-node file">  ide.bats</div>
+<div class="tree-node file">Makefile</div>
+          </div>
+        </div>
+
+        <!-- Center Column: Pane 2 (Editor Top) + Pane 3 (Terminal Bottom) -->
+        <div class="tmux-center-col">
+          <!-- Pane 2: Editor (Neovim LSP) -->
+          <div class="tmux-pane pane-editor font-mono">
+            <div class="pane-header">
+              <span class="pane-title">2: Neovim (LSP)</span>
+              <span class="pane-file">common/mcp-server.sh</span>
+            </div>
+            <div class="pane-content editor-content" tabindex="0" role="region" aria-label="Neovim Code Editor">
+              <pre class="editor-code font-mono"><code><span class="code-comment"># common/mcp-server.sh · JSON-RPC 2.0 Stdio Protocol</span>
 <span class="code-kw">while read</span> -r line; <span class="code-kw">do</span>
   method=$(echo <span class="code-str">"$line"</span> | jq -r .method)
   <span class="code-kw">case</span> <span class="code-str">"$method"</span> <span class="code-kw">in</span>
     <span class="code-str">"tools/list"</span>) send_tools_manifest ;;
-    <span class="code-str">"tools/call"</span>) dispatch_tool <span class="code-str">"$(echo "$line" | jq -r .params)"</span> ;;
+    <span class="code-str">"tools/call"</span>) dispatch_tool <span class="code-str">"$params"</span> ;;
   <span class="code-kw">esac</span>
 <span class="code-kw">done</span> &lt; /dev/stdin</code></pre>
+            </div>
+          </div>
+
+          <!-- Pane 3: Integrated Shell / Test Runner -->
+          <div class="tmux-pane pane-terminal font-mono">
+            <div class="pane-header">
+              <span class="pane-title">3: Shell / Tests</span>
+              <span class="pane-badge">idle</span>
+            </div>
+            <div class="pane-content terminal-content font-mono" tabindex="0" role="region" aria-label="Integrated Terminal">
+<div class="cli-line"><span class="mcp-tl-ps">$ </span>make doctor &amp;&amp; bats test/*.bats</div>
+<div class="cli-out">✓ langdev healthcheck OK (read-only rootfs, UID 1000)</div>
+<div class="cli-out cli-ok">1..38 passed in 0.42s (0 failures)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pane 4: AI Agent / MCP Server (Right 24%) -->
+        <div class="tmux-pane pane-ai font-mono">
+          <div class="pane-header">
+            <span class="pane-title">4: Claude Code</span>
+            <span class="pane-badge ai-badge">MCP Agent</span>
+          </div>
+          <div class="pane-content ai-content font-mono" tabindex="0" role="region" aria-label="AI Agent Panel">
+<div class="ai-prompt"><span class="ai-sym">&gt;</span> Claude Code (MCP)</div>
+<div class="ai-tool">⏺ Tool: muxtree.create("feat/agent")</div>
+<div class="ai-res">✓ Created worktree in /work/.worktrees/agent</div>
+<div class="ai-tool">⏺ Tool: mcp.exec("bats test/mcp.bats")</div>
+<div class="ai-res">✓ 38 Bats unit tests passed (0 errors)</div>
+          </div>
+        </div>
       </div>
-      <div class="terminal-cli-pane font-mono">
-        <div class="cli-line"><span class="mcp-tl-ps">$ </span>make doctor &amp;&amp; make test</div>
-        <div class="cli-out">[OK] Container engine: podman / docker (&lt; 500ms cold start) · cap_drop [ALL]</div>
-        <div class="cli-line"><span class="mcp-tl-ask">&gt; </span>Claude MCP: Spawn ephemeral muxtree worktree and run test suite</div>
-        <div class="cli-out cli-ok">✓ 100% Bats hermetic unit tests passed · read-only rootfs · non-root UID 1000</div>
+
+      <!-- TMUX Status Bar -->
+      <div class="tmux-status-bar font-mono">
+        <span class="status-left">[langdev:ide*] 0:ide* (4 panes) "langdev-ide" 23:55</span>
+        <span class="status-center">muxtree: main (clean) · mcp: stdio (JSON-RPC)</span>
+        <span class="status-right">23:55 29-Aug-26</span>
       </div>
     </figure>
   </div>
