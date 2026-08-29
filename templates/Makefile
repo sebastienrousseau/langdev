@@ -9,6 +9,8 @@ IMAGE ?= $(notdir $(CURDIR))
 TAG   ?= local
 REF   := $(IMAGE):$(TAG)
 PLATFORMS ?= linux/amd64,linux/arm64
+PORT  ?= 7681
+AUTH  ?= dev:langdev
 
 # --- Engine autodetection (docker preferred, podman fallback) ----------------
 ENGINE ?= $(shell command -v docker >/dev/null 2>&1 && echo docker || echo podman)
@@ -54,6 +56,25 @@ up: shell ## Alias for `shell`
 shell: build ## Start an interactive dev shell in a fresh container
 	mkdir -p work
 	$(ENGINE) run $(RUN_FLAGS) $(REF)
+
+.PHONY: web
+web: build ## Start WebTTY on port 7681 (iPad/browser access: make web PORT=7681)
+	mkdir -p work
+	$(ENGINE) run $(RUN_FLAGS) -p $(PORT):$(PORT) $(REF) ttyd -p $(PORT) -t fontSize=15 -t theme='{"background": "#1a1b26"}' tmux-ide --launch
+
+.PHONY: web-auth
+web-auth: build ## Start WebTTY with auth: make web-auth AUTH="user:pass"
+	mkdir -p work
+	$(ENGINE) run $(RUN_FLAGS) -p $(PORT):$(PORT) $(REF) ttyd -p $(PORT) -c $(AUTH) -t fontSize=15 -t theme='{"background": "#1a1b26"}' tmux-ide --launch
+
+.PHONY: mosh
+mosh: build ## Start container with UDP port range for Mosh roaming
+	mkdir -p work
+	$(ENGINE) run $(RUN_FLAGS) -p 60000-60010:60000-60010/udp $(REF)
+
+.PHONY: doctor
+doctor: ## Run system & container runtime health checks
+	@./common/doctor.sh
 
 .PHONY: run
 run: build ## Run a one-shot command: make run CMD="..."
