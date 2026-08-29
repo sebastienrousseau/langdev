@@ -1,6 +1,9 @@
 ---
 layout: index
 title: "langdev — Portable, Disposable AI Developer Container Foundation"
+description: "The core foundation of the multi-language suite: 4-pane TMUX IDE, JSON-RPC 2.0 stdio MCP agent server, git worktree pairing, mobile WebTTY, and dotfiles bootstrap."
+eyebrow: "Core Foundation"
+author: "Sebastien Rousseau"
 name: "langdev"
 headline: "Portable, Disposable AI Developer Container Foundation"
 lead: "The core foundation of the multi-language suite: 4-pane TMUX IDE, JSON-RPC 2.0 stdio MCP agent server, git worktree pairing, mobile WebTTY, and dotfiles bootstrap."
@@ -24,7 +27,7 @@ date: "2026-08-29"
       </div>
       <div class="card">
         <h3>Model Context Protocol (MCP)</h3>
-        <p>Stdio JSON-RPC 2.0 interface exposing file search, bash execution, and diagnostics to Claude Code and Cursor.</p>
+        <p>Stdio JSON-RPC 2.0 interface exposing file search, bash execution, and diagnostics to Claude Code, Cursor, and Antigravity.</p>
       </div>
       <div class="card">
         <h3>Universal Dotfiles Bootstrap</h3>
@@ -45,9 +48,59 @@ cd langdev
 # 2. Build and launch 4-pane TMUX IDE
 make up
 
-# 3. Mobile WebTTY (port 7681) & Mosh roaming
+# 3. Mobile WebTTY (port 7681) &amp; Mosh roaming
 make web
 make mosh</code></pre>
+  </div>
+</section>
+
+<section id="features" class="section">
+  <div class="container text-center">
+    <h2 class="section-title">Core Developer Capabilities</h2>
+    <p class="section-desc">Full terminal-first development experience equipped with modern CLI productivity tools.</p>
+    <div class="grid-2x2">
+      <div class="card">
+        <h3>High-Speed Context Packer (ai-pack)</h3>
+        <p>Format entire repository codebases into token-efficient XML or Markdown prompt contexts with zero external dependencies.</p>
+      </div>
+      <div class="card">
+        <h3>OSC 52 Universal Clipboard</h3>
+        <p>Copy text from remote Neovim or TMUX sessions directly to your local system clipboard over SSH, WebTTY, or Mosh.</p>
+      </div>
+      <div class="card">
+        <h3>Pre-Configured Modern CLI Suite</h3>
+        <p>Equipped with ripgrep, fd, bat, eza, fzf, jq, curl, git, and zsh with autosuggestions and syntax highlighting.</p>
+      </div>
+      <div class="card">
+        <h3>Deterministic Reproducibility</h3>
+        <p>Pinned tool versions, immutable root filesystem, and hermetic container builds verified by CI test suites.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="ai-ide" class="section">
+  <div class="container text-center">
+    <h2 class="section-title">AI Coding Agent Architecture</h2>
+    <p class="section-desc">Designed from first principles to empower local coding agents with standard protocols.</p>
+    <div class="grid-2x2">
+      <div class="card">
+        <h3>Model Context Protocol (MCP) Server</h3>
+        <p>Runs a native JSON-RPC 2.0 stdio server providing tools for file reading, file search, shell execution, and diagnostics.</p>
+      </div>
+      <div class="card">
+        <h3>Isolated Git Worktree Workflows</h3>
+        <p>Spawn ephemeral worktrees for AI tasks without dirtying your main working tree or breaking active development.</p>
+      </div>
+      <div class="card">
+        <h3>Sub-500ms Cold Start Startup</h3>
+        <p>Optimized image layers and pre-compiled configurations ensure instantaneous container boot and shell readiness.</p>
+      </div>
+      <div class="card">
+        <h3>Zero-Trust Capability Drop</h3>
+        <p>Runs as unprivileged user (UID 1000) with all root capabilities dropped (<code>cap_drop: [ALL]</code>) and read-only rootfs.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -59,10 +112,10 @@ make mosh</code></pre>
       <table>
         <thead>
           <tr>
-            <th>Container</th>
-            <th>Language Stack</th>
-            <th>Built-in Tooling</th>
-            <th>Version</th>
+            <th scope="col">Container</th>
+            <th scope="col">Language Stack</th>
+            <th scope="col">Built-in Tooling</th>
+            <th scope="col">Version</th>
           </tr>
         </thead>
         <tbody>
@@ -132,7 +185,7 @@ make mosh</code></pre>
         <p>Base images pinned to cryptographic SHA256 digests. Zero unpinned curl-to-sh scripts. Automated CycloneDX SBOM generation.</p>
       </div>
       <div class="card">
-        <h3>Hermetic CI & SAST</h3>
+        <h3>Hermetic CI &amp; SAST</h3>
         <p>100% unit tested with Bats, ShellCheck linting, Hadolint OCI auditing, and Trivy CVE vulnerability scans.</p>
       </div>
     </div>
@@ -145,11 +198,15 @@ make mosh</code></pre>
     <div class="faq-stack">
       <div class="card">
         <h3>How fast does the container start?</h3>
-        <p>Under 500 milliseconds cold start. All dependencies and dotfile templates are baked in the image.</p>
+        <p>Under 500 milliseconds cold start. All dependencies and dotfile templates are pre-baked into the container image.</p>
       </div>
       <div class="card">
         <h3>Does it support custom dotfiles?</h3>
         <p>Yes. Set <code>DOTFILES_REPO</code> in your <code>.env</code> file, and the container automatically applies your configuration on boot via chezmoi.</p>
+      </div>
+      <div class="card">
+        <h3>Can I run multiple language containers side by side?</h3>
+        <p>Yes. All containers in the suite use non-conflicting port mappings and shared worktree patterns for simultaneous multi-language development.</p>
       </div>
     </div>
   </div>
