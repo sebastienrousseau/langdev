@@ -1,12 +1,12 @@
 ---
 layout: index
-title: langdev — Portable, Disposable AI Developer Container Foundation
-name: langdev
-headline: Portable, Disposable AI Developer Container Foundation
-lead: The core foundation of the multi-language suite: 4-pane TMUX IDE, JSON-RPC 2.0 stdio MCP agent server, git worktree pairing, mobile WebTTY, and dotfiles bootstrap.
-permalink: /
-language: en-GB
-date: 2026-08-29
+title: "langdev — Portable, Disposable AI Developer Container Foundation"
+name: "langdev"
+headline: "Portable, Disposable AI Developer Container Foundation"
+lead: "The core foundation of the multi-language suite: 4-pane TMUX IDE, JSON-RPC 2.0 stdio MCP agent server, git worktree pairing, mobile WebTTY, and dotfiles bootstrap."
+permalink: "/"
+language: "en-GB"
+date: "2026-08-29"
 ---
 
 <section id="overview" class="section">
@@ -16,19 +16,19 @@ date: 2026-08-29
     <div class="grid-2x2">
       <div class="card">
         <h3>4-Pane TMUX IDE (Prefix + i)</h3>
-        <p>Pre-configured VS Code style terminal multiplexer grid with Project Explorer, Neovim LSP, bash CLI, and AI Agent pane.</p>
+        <p>Instant IDE split layout with File Tree Explorer, Neovim (Treesitter + LSP), bash terminal, and AI Agent pane.</p>
       </div>
       <div class="card">
         <h3>Parallel AI Task Worktrees (muxtree)</h3>
-        <p>Automate isolated Git worktrees paired with separate TMUX sessions for concurrent multi-agent and human feature branches.</p>
+        <p>Automate Git worktrees paired with separate TMUX sessions for concurrent multi-agent and human feature branches.</p>
       </div>
       <div class="card">
         <h3>Model Context Protocol (MCP)</h3>
-        <p>Native JSON-RPC 2.0 stdio server enabling Claude Code, Cursor, and Aider to execute sandbox queries and diagnostics directly.</p>
+        <p>Stdio JSON-RPC 2.0 interface exposing file search, bash execution, and diagnostics to Claude Code and Cursor.</p>
       </div>
       <div class="card">
-        <h3>High-Speed Context Packer (ai-pack)</h3>
-        <p>Format entire repository codebases into token-efficient XML or Markdown prompt contexts with zero external dependencies.</p>
+        <h3>Universal Dotfiles Bootstrap</h3>
+        <p>Zero-configuration dotfiles onboarding from any public or private GitHub repository via chezmoi.</p>
       </div>
     </div>
   </div>
@@ -37,7 +37,7 @@ date: 2026-08-29
 <section id="quickstart" class="section">
   <div class="container narrow">
     <h2 class="section-title text-center">Quick Start in 30 Seconds</h2>
-    <p class="section-desc text-center">Disposable development environments running on Docker or Podman.</p>
+    <p class="section-desc text-center">Disposable developer environment running anywhere Docker or Podman runs.</p>
     <pre><code># 1. Clone the repository
 git clone https://github.com/sebastienrousseau/langdev.git
 cd langdev
@@ -144,16 +144,12 @@ make mosh</code></pre>
     <h2 class="section-title text-center">Frequently Asked Questions</h2>
     <div class="stack" style="display:flex; flex-direction:column; gap:1.5rem; margin-top:2rem;">
       <div class="card">
-        <h3>What is the startup overhead?</h3>
-        <p>Under 500 milliseconds. All dotfiles and plugins are pre-baked at image build time, ensuring immediate zero-network launch.</p>
+        <h3>How fast does the container start?</h3>
+        <p>Under 500 milliseconds cold start. All dependencies and dotfile templates are baked in the image.</p>
       </div>
       <div class="card">
-        <h3>Can I customize the dotfiles?</h3>
-        <p>Yes. Pass <code>DOTFILES_REPO</code> and <code>DOTFILES_REF</code> build arguments to inject your own chezmoi repository directly.</p>
-      </div>
-      <div class="card">
-        <h3>How does WebTTY work on mobile/tablets?</h3>
-        <p><code>make web</code> launches an authenticated ttyd session with OSC 52 clipboard synchronization accessible from Safari or Chrome.</p>
+        <h3>Does it support custom dotfiles?</h3>
+        <p>Yes. Set <code>DOTFILES_REPO</code> in your <code>.env</code> file, and the container automatically applies your configuration on boot via chezmoi.</p>
       </div>
     </div>
   </div>
