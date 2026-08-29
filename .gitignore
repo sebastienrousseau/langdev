@@ -4,3 +4,4 @@ sbom.cdx.json
 .env
 !env.example
 .DS_Store
+public/

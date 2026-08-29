@@ -1,0 +1,16 @@
+site_name = "langdev"
+site_title = "langdev — Portable, Disposable AI Developer Container Foundation"
+site_description = "The core foundation of the multi-language suite: 4-pane TMUX IDE, JSON-RPC 2.0 stdio MCP agent server, git worktree pairing, mobile WebTTY, and dotfiles bootstrap."
+base_url = "https://sebastienrousseau.github.io/langdev/"
+language = "en-GB"
+
+content_dir = "content"
+template_dir = "_layouts"
+output_dir = "public"
+
+[agents]
+agents_txt = true
+ai_plugin = true
+
+[agents.mcp]
+enabled = true
