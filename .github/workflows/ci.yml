@@ -36,8 +36,7 @@ jobs:
         run: |
           set -euo pipefail
           files=$(git ls-files '*.sh' 'bin/langdev-sync' 'test/helpers/bin/*' 'test/helpers/common.bash')
-          echo "$files"
-          shellcheck -x $files
+          echo "$files" | xargs shellcheck -x
 
   hadolint:
     name: hadolint
@@ -49,6 +48,8 @@ jobs:
       - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf # v3.1.0
         with:
           dockerfile: templates/Containerfile
+          config: .hadolint.yaml
+          failure-threshold: error
 
   coverage:
     name: bats + kcov (>=95%)
