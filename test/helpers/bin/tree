@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for tree.
+{ printf 'tree'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+printf '.\n├── src\n└── README.md\n'
+exit 0

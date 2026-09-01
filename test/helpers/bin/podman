@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for podman.
+{ printf 'podman'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+case "${1:-}" in
+  --version) printf 'podman version 5.1.0\n' ;;
+  *) : ;;
+esac
+exit 0

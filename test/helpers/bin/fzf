@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for fzf. Emits STUB_FZF_OUT on stdout (default empty = cancel).
+{ printf 'fzf'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+printf '%s' "${STUB_FZF_OUT:-}"
+[ -n "${STUB_FZF_OUT:-}" ] && printf '\n'
+exit "${STUB_FZF_RC:-0}"
