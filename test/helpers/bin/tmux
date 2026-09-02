@@ -1,7 +1,26 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-# Test double for tmux. Records argv and exits 0. The entrypoint only needs
-# `command -v tmux` to succeed; the actual `tmux new-session` is intercepted
-# by the LANGDEV_TEST exec shim, so this body is a safety net.
+# Test double for tmux. Records argv to $STUB_LOG and simulates the small
+# surface the langdev IDE scripts use. Behaviour is steered by env vars so a
+# test can drive every branch:
+#   STUB_TMUX_HAS_SESSION=N  exit code for `has-session`  (default 0 = exists)
+#   STUB_TMUX_PANES=N        number of lines `list-panes` prints (default 1)
 { printf 'tmux'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
-exit 0
+
+case "${1:-}" in
+  has-session)
+    exit "${STUB_TMUX_HAS_SESSION:-0}"
+    ;;
+  list-panes)
+    n="${STUB_TMUX_PANES:-1}"
+    i=0
+    while [ "$i" -lt "$n" ]; do
+      printf '%%%d active\n' "$i"
+      i=$((i + 1))
+    done
+    exit 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac

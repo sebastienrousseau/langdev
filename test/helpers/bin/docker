@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Test double for docker. STUB_DOCKER_INFO_RC controls `docker info` exit code.
+{ printf 'docker'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
+case "${1:-}" in
+  --version) printf 'Docker version 27.1.1, build 6312585\n' ;;
+  info) exit "${STUB_DOCKER_INFO_RC:-0}" ;;
+  *) : ;;
+esac
+exit 0

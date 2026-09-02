@@ -31,12 +31,17 @@ common_setup() {
 # branch, omit it to hit the cp fallback; include `tmux` to hit the entrypoint
 # tmux branch, omit it for the login-shell fallback.
 hermetic_path() {
+  # Remember the caller's real PATH so repeated calls in one test still have
+  # working coreutils (rebuilding wipes the sandbox bin, tools and all).
+  [ -n "${_HP_ORIG_PATH:-}" ] || _HP_ORIG_PATH="$PATH"
+  PATH="$_HP_ORIG_PATH"
   local bindir="$SANDBOX/bin"
   rm -rf "$bindir"
   mkdir -p "$bindir"
   local t real
   for t in bash sh env mkdir rmdir rm cp mv cat mktemp grep sed awk ls \
-           dirname basename chmod printf test; do
+           dirname basename chmod printf test uname wc tr head sort find \
+           cut python3; do
     real="$(command -v "$t" 2>/dev/null || true)"
     [ -n "$real" ] && ln -sf "$real" "$bindir/$t"
   done

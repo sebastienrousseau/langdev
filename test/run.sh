@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
 # langdev test runner. Runs the bats suite under kcov and enforces a line
-# coverage floor (default 95%). This is the gate CI's `coverage` job runs.
+# coverage floor (default 98%). This is the gate CI's `coverage` job runs.
 #
 # Usage:
-#   test/run.sh                 # bats + kcov, fail if coverage < 95%
+#   test/run.sh                 # bats + kcov, fail if coverage < 98%
 #   COVERAGE_THRESHOLD=90 test/run.sh
 #   test/run.sh --no-coverage   # just run bats (no kcov)
 set -euo pipefail
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$TEST_DIR/.." && pwd)"
-THRESHOLD="${COVERAGE_THRESHOLD:-95}"
+THRESHOLD="${COVERAGE_THRESHOLD:-98}"
 COV_DIR="${COVERAGE_DIR:-$REPO_ROOT/coverage}"
 
 if ! command -v bats >/dev/null 2>&1; then

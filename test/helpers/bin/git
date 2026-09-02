@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: Apache-2.0 OR MIT
-# Test double for git. Records argv to $STUB_LOG and simulates the small
-# surface the langdev scripts use: clone, checkout, rev-parse. Behaviour is
-# steered by env vars so a test can drive every branch:
-#   STUB_GIT_BRANCH_FAIL=1   make `clone --branch` fail (exercises fallback)
-#   STUB_GIT_CHECKOUT_RC=N   exit code for `checkout`      (default 0)
-#   STUB_GIT_SHA=<sha>       value printed by `rev-parse`  (default 40x'0')
+# Test double for git. Records argv to $STUB_LOG and simulates the surface the
+# langdev scripts use: clone, checkout, rev-parse, show-ref, worktree, status,
+# diff, branch, ls-files. Behaviour is steered by env vars so a test can drive
+# every branch:
+#   STUB_GIT_BRANCH_FAIL=1     make `clone --branch` fail (exercises fallback)
+#   STUB_GIT_CHECKOUT_RC=N     exit code for `checkout`               (default 0)
+#   STUB_GIT_SHA=<sha>         value printed by `rev-parse HEAD`      (default 40x0)
+#   STUB_GIT_NOT_REPO=1        `rev-parse --is-inside-work-tree` fails
+#   STUB_GIT_TOPLEVEL=<dir>    value printed by `rev-parse --show-toplevel`
+#   STUB_GIT_SHOWREF_RC=N      exit code for `show-ref --verify`      (default 1)
+#   STUB_GIT_BRANCH=<name>     value printed by `branch --show-current` (default main)
+#   STUB_GIT_STATUS=<text>     value printed by `status`              (default empty)
+#   STUB_GIT_DIFF=<text>       value printed by `diff`                (default empty)
+#   STUB_GIT_LSFILES=<lines>   newline list printed by `ls-files`     (default empty)
+#   STUB_GIT_WT_PORCELAIN=<t>  override `worktree list --porcelain` output
 { printf 'git'; printf ' %s' "$@"; printf '\n'; } >> "${STUB_LOG:-/dev/null}"
 
 args=("$@")
@@ -14,6 +23,7 @@ if [ "${args[0]:-}" = "-C" ]; then
   args=("${args[@]:2}")
 fi
 cmd="${args[0]:-}"
+sub="${args[1]:-}"
 
 case "$cmd" in
   clone)
@@ -22,18 +32,83 @@ case "$cmd" in
         exit 1
       fi
     done
-    # Destination is the last positional argument.
     dest="${args[$((${#args[@]} - 1))]}"
     mkdir -p "$dest/common"
     printf '# stub common core\n' > "$dest/common/entrypoint.sh"
     exit 0
     ;;
   rev-parse)
-    printf '%s\n' "${STUB_GIT_SHA:-0000000000000000000000000000000000000000}"
-    exit 0
+    case "$sub" in
+      --is-inside-work-tree)
+        if [ "${STUB_GIT_NOT_REPO:-0}" = "1" ]; then
+          echo "false" >&2
+          exit 1
+        fi
+        echo "true"
+        exit 0
+        ;;
+      --show-toplevel)
+        printf '%s\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+        exit 0
+        ;;
+      *)
+        printf '%s\n' "${STUB_GIT_SHA:-0000000000000000000000000000000000000000}"
+        exit 0
+        ;;
+    esac
     ;;
   checkout)
     exit "${STUB_GIT_CHECKOUT_RC:-0}"
+    ;;
+  show-ref)
+    exit "${STUB_GIT_SHOWREF_RC:-1}"
+    ;;
+  worktree)
+    case "$sub" in
+      list)
+        if printf '%s\n' "${args[@]}" | grep -q -- '--porcelain'; then
+          if [ -n "${STUB_GIT_WT_PORCELAIN:-}" ]; then
+            printf '%s\n' "$STUB_GIT_WT_PORCELAIN"
+          else
+            printf 'worktree %s\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+            printf 'HEAD 1111111111111111111111111111111111111111\n'
+            printf 'branch refs/heads/main\n'
+            printf '\n'
+            printf 'worktree %s/.worktrees/feat-x\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+            printf 'HEAD 2222222222222222222222222222222222222222\n'
+            printf 'branch refs/heads/feat/x\n'
+            printf '\n'
+            printf 'worktree %s/.worktrees/detached\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+            printf 'HEAD 3333333333333333333333333333333333333333\n'
+            printf 'detached\n'
+          fi
+        else
+          printf '%s  1111111 [main]\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+          printf '%s/.worktrees/feat-x  2222222 [feat/x]\n' "${STUB_GIT_TOPLEVEL:-$PWD}"
+        fi
+        exit 0
+        ;;
+      *)
+        exit 0
+        ;;
+    esac
+    ;;
+  status)
+    printf '%s\n' "${STUB_GIT_STATUS:-}"
+    exit 0
+    ;;
+  diff)
+    printf '%s\n' "${STUB_GIT_DIFF:-}"
+    exit 0
+    ;;
+  branch)
+    printf '%s\n' "${STUB_GIT_BRANCH:-main}"
+    exit 0
+    ;;
+  ls-files)
+    printf '%s' "${STUB_GIT_LSFILES:-}"
+    [ -n "${STUB_GIT_LSFILES:-}" ] && printf '\n'
+    exit 0
     ;;
   *)
     exit 0
